@@ -1,0 +1,94 @@
+<?php 
+class mcFirstVariantOxArticle extends mcFirstVariantOxArticle_parent
+{
+    protected $_oFirstVariant = null;
+    
+    /**
+     * returns first (from sorting) active variant
+     */
+    public function getFirstVariant()
+    {
+        startProfile(__FUNCTION__);
+        $this->_blLoadVariants = true;
+        $oVariants = $this->getVariants();
+
+        if (!$this->isVariant()
+            && $oVariants
+            && count($oVariants) > 0
+        ) {
+            $oVariants->rewind();
+            $aVariants = $oVariants->getArray();
+        
+            $oVariant = oxNew('oxarticle');
+            $oVariant->load(current($aVariants)->getId());
+            
+            $this->_oFirstVariant = $oVariant;
+        }
+        stopProfile(__FUNCTION__);
+        
+        return $this->_oFirstVariant; 
+    }
+
+    public function hasVariants()
+    {
+        return $this->_hasAnyVariant();
+    }
+    
+    public function getPictureUrl( $iIndex = '' )
+    {
+        $this->_checkForPictureInsert();
+        if ($this->_oFirstVariant && !isAdmin()) {
+            return $this->_oFirstVariant->getPictureUrl($iIndex);
+        } else {
+            return parent::getPictureUrl($iIndex);
+        }
+    }
+    
+    public function getThumbnailUrl()
+    {
+        $this->_checkForPictureInsert();
+        if ($this->_oFirstVariant && !isAdmin()) {
+            return $this->_oFirstVariant->getThumbnailUrl();
+        } else {
+            return parent::getThumbnailUrl();
+        }
+    }
+    
+    public function getIconUrl( $iIndex = '')
+    {
+        $this->_checkForPictureInsert();
+        if ($this->_oFirstVariant && !isAdmin()) {
+            return $this->_oFirstVariant->getIconUrl($iIndex);
+        } else {
+            return parent::getIconUrl($iIndex);
+        }
+    }
+    
+    public function getLink( $iLang = null, $blMain = false  )
+    {
+        if ($this->_oFirstVariant && !isAdmin()) {
+            return $this->_oFirstVariant->getLink($iLang, $blMain);
+        } else {
+            return parent::getLink($iLang, $blMain);
+        }
+    }
+    
+    /**
+     * Assigns to oxarticle object some base parameters/values (such as
+     * detaillink, moredetaillink, etc).
+     *
+     * @param string $aRecord Array representing current field values
+     *
+     * @return null
+     */
+    public function assign( $aRecord)
+    {
+        parent::assign($aRecord);
+        startProfile('mcFirstVariant::assign');
+        if (!$this->isAdmin() && $this->_hasAnyVariant()) {
+            $this->getFirstVariant();
+        }
+        stopProfile('mcFirstVariant::assign');
+    }
+}
+
