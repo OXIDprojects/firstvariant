@@ -90,7 +90,7 @@ class jag_firstvariant_oxarticle extends jag_firstvariant_oxarticle_parent
 	 *
 	 * @return string
      */
-    public function getThumbnailUrl()
+    public function getThumbnailUrl($bSsl = NULL)
     {
         if ($this->_oFirstVariant && !isAdmin()) {
             return $this->_oFirstVariant->getThumbnailUrl();
